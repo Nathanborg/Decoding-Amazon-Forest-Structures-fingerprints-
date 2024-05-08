@@ -82,14 +82,12 @@ for(a in 1:length(folder)){
     
     interval <- 5
 
-    # Loop over the distance intervals and generate a plot for each interval
     for (i in seq(from = 0, to = max(parcela$distancia)-interval , by = interval)) {
       
       subset_data <- subset(parcela, distancia >= i & distancia <= i+interval)
       subset_data <- subset_data[!is.na(subset_data$distancia) & !is.na(subset_data$altura),]
       subset_data=subset_data[subset_data$tipo==2,]
       
-      # Create the plot
       plot <- ggplot(na.omit(subset_data), aes(x=distancia, y=altura)) + ylim(2, 36) +
         geom_bin2d(bins = 90) +
         scale_fill_continuous(type = "viridis") +
@@ -103,7 +101,6 @@ for(a in 1:length(folder)){
           axis.ticks = element_blank()
         ) +  guides(fill = FALSE)
       
-      # Print and save the plot
       print(plot)
       ggsave(paste0("plot_",monthss,"_",paste0(parc),"_",round(i,2),"_to_",round(i+interval,2),".jpeg"), plot, width = 7, height = 7, dpi = 78)
     }
