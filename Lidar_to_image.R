@@ -7,10 +7,8 @@ list_subfolders <- function(folder_path) {
   return(subfolders)
 }
 
-# Folder list to iterate over
 folder=list("mar","out","sep")
 
-# Loop over each folder
 for(a in 1:length(folder)){
   month=folder[[a]]
   
