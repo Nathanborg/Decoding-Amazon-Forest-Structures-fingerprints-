@@ -1,9 +1,7 @@
-# Load required libraries
 require(stringr)
 require(ggplot2)
 require(data.table)
 
-# Define function to list all subfolders in a folder
 list_subfolders <- function(folder_path) {
   subfolders <- list.dirs(folder_path, recursive = FALSE, full.names = FALSE)
   return(subfolders)
@@ -16,34 +14,24 @@ folder=list("mar","out","sep")
 for(a in 1:length(folder)){
   month=folder[[a]]
   
-  # Set directory path
   dir_path <- paste0("Groundbasedlidar_k34/",month)
   
-  # Get list of image files
   image_files <- list.files(path = dir_path, pattern = "\\.(jpg|jpeg|png|gif|bmp)$", recursive = TRUE, full.names = TRUE)
   
-  # Delete the files
   lapply(image_files, file.remove)
   
-  # Set month for the next steps
   monthss=month
   
-  # List all subfolders within the month's folder
   folders=list_subfolders(paste0("Groundbasedlidar_k34/",monthss))
   
-  # Loop through each subfolder
   for(j in 1:length(folders)){
-    # Set working directory
     setwd(paste0("Groundbasedlidar_k34//",monthss,"/",folders[j]))
     
-    # List all .asc files
     files=list.files(pattern=".asc")
     
-    # Define a function to read the files
     fread2 = function(x){read.table(x, sep = ";")}
     files=lapply(files, fread2)
     
-    # Function to process each file
     fun1 = function(x){
       h1 <- substr(x[seq(1, nrow(x), 1), 1], 2, 1000)
       h1 <- data.frame(altura = as.numeric(as.character(h1)))
@@ -57,7 +45,6 @@ for(a in 1:length(folder)){
       return(cam1)
     }
     
-    # Apply the function to each file
     parcela = lapply(files,fun1)
     
  
@@ -86,13 +73,11 @@ for(a in 1:length(folder)){
 
     parcela <- rbind(cam1, cam2, cam3, cam4, cam5, cam6, cam7, cam8, cam9, cam10)
     tipo <- rep(1:2, nrow(parcela)/2)
-    # Adjust height
     h <- data.frame(parcela$altura)  
     h <- apply(h, c(1, 2), function(x) ifelse (x > 100, x - 100, x))
     h <- apply(h, c(1, 2), function(x) ifelse(x > 0, x + 1, x))
     parcela$altura <- data.frame (altura = as.numeric(as.character(h))) 
     
-    # Create the final table
     parc=paste0(str_sub(getwd(),78,80))
     parcela <- data.frame(trat = paste0(str_sub(getwd(),78,80)), parc = "p1", cam = parcela$cam, tipo, distancia = parcela$distancia, altura = parcela$altura)
     parcela <- parcela[parcela$altura < 60,]
@@ -102,7 +87,6 @@ for(a in 1:length(folder)){
     # Loop over the distance intervals and generate a plot for each interval
     for (i in seq(from = 0, to = max(parcela$distancia)-interval , by = interval)) {
       
-      # Subset the data for plotting
       subset_data <- subset(parcela, distancia >= i & distancia <= i+interval)
       subset_data <- subset_data[!is.na(subset_data$distancia) & !is.na(subset_data$altura),]
       subset_data=subset_data[subset_data$tipo==2,]
